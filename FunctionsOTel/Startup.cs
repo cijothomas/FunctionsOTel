@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Logs;
+using OpenTelemetry.Resources;
 
 [assembly: FunctionsStartup(typeof(FunctionsOTel.Startup))]
 namespace FunctionsOTel
@@ -23,7 +24,14 @@ namespace FunctionsOTel
                 // Configure logging filter here in code
                 // or in host.json
                 // loggingBuilder.AddFilter<OpenTelemetryLoggerProvider>("*", LogLevel.Warning);
-                loggingBuilder.AddOpenTelemetry((otelOptions) => otelOptions.AddConsoleExporter());
+                loggingBuilder.AddOpenTelemetry(
+                    (otelOptions) =>
+                        {
+                            otelOptions.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("testservice"));
+                            otelOptions.IncludeFormattedMessage = true;
+                            otelOptions.AddConsoleExporter();
+                        }
+                    );
             }
             );
         }
